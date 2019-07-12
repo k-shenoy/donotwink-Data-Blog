@@ -3,37 +3,31 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
-
 ```{r}
 library(tidyverse)
 library(readxl)
 library(gganimate)
-library(dplyr)
-library(ggrepel)
 
-thegreen <- rgb(0,250,154, max=255, alpha = 15)
+thegreen <- rgb(0,250,154, max=255, alpha = 15) #background color
 windowsFonts(font14 = windowsFont("Lucida Sans"))
 
-el <- read_excel("C:/Users/Keshav/OneDrive/dataviz/prez19762016.xlsx")
-elsub <- subset(el, democ!="NA")
-pop <- read_excel("C:/Users/Keshav/OneDrive/dataviz/elec2.xlsx")
-eljoin <- left_join(elsub, pop)
-eljoin <- subset(eljoin, year!="1976")
+el <- read_excel(PATH)
+elsub <- subset(el, democ!="NA") #remove NA entries
+pop <- read_excel(PATH) 
+eljoin <- left_join(elsub, pop) #combine turnout data with election data
+eljoin <- subset(eljoin, year!="1976") #remove 1976 election data
 
 p <- ggplot(eljoin, aes(x = (as.numeric(repub)-as.numeric(democ)), y = totalvotes/vep, group = state_fips)) +
-  geom_point(
+  geom_point( #create points
     aes(color = (as.numeric(repub)-as.numeric(democ))), 
     size = 10) +
-  geom_text(aes(label = state_po), family = "font14", nudge_y = .001) +
-  scale_x_continuous(
+  geom_text(aes(label = state_po), family = "font14", nudge_y = .001) + #create labels for points
+  scale_x_continuous( #custom x axis
     limits = c(-.6, .6), 
     breaks = c(-0.5, -0.25, 0, 0.25, 0.5), 
     labels = c("+50%Dem", "+25%Dem", "0", "+25%GOP", "+50%GOP")) +
-  scale_color_gradient2(low = "darkblue", mid = "gray80", high="red") +
-  theme(
+  scale_color_gradient2(low = "darkblue", mid = "gray80", high="red") + #set color gradient for points
+  theme( #formatting and styling for the plot
     panel.background = element_blank(),
     panel.grid = element_line(color = "gray85"),
     panel.spacing = margin(6,6,6,6, "mm"),
@@ -49,22 +43,16 @@ p <- ggplot(eljoin, aes(x = (as.numeric(repub)-as.numeric(democ)), y = totalvote
     text = element_text(family="font14"), 
     title = element_text(size = 30)
     ) +
-  labs(
+  labs( # set titles
     title = "Political Distribution of States in {closest_state}",
     subtitle = "Presidential Elections from 1980 to 2016",
     x = "Difference between Dem and GOP Percentage of Vote",
     y = "Voter Turnout (Total Votes/VEP)",
     caption = "\nIG: do_not_wink | Source: MIT Election Data and Science Lab & United States Election Project\n*Excluding Washington DC"
   )
-p <- p +  transition_states(year, transition_length = 2, state_length = 3) + 
+p <- p +  transition_states(year, transition_length = 2, state_length = 3) +  #animate the plot
   ease_aes('sine-in-out')
-animate(p, renderer = av_renderer(), nframes=500, fps=15, width=800, height=800)
+animate(p, renderer = av_renderer(), nframes=500, fps=15, width=800, height=800) #create the animation
 anim_save("prezscatter.mp4")
 
 ```
-
-Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
-
-When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
-
-The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
