@@ -1,0 +1,57 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+library(maps)
+library(gganimate)
+library(ggalt)
+library(readxl)
+#library(showtext)
+
+thegreen <- rgb(0,250,154, max=255, alpha = 15)
+
+stats <- read_excel(FilePath)
+
+windowsFonts(font14 = windowsFont("Corbel"))
+
+head(stats)
+stats$name <- factor(stats$name, levels=as.character(stats$name))
+
+p <- ggplot(stats, aes(x = low, xend = high, y = name, group = name)) +
+  geom_dumbbell(colour_x = "orange", size = 3, colour_xend = "red", colour = "orange") +
+  theme(panel.background = element_blank(), 
+        panel.grid = element_blank(),
+        panel.spacing = margin(6,6,6,6, "mm"),  
+        legend.background = element_blank(),
+        legend.text = element_text(size=16),
+        legend.title = element_text(size = 22),
+        legend.position = c(.85,.85),
+        legend.key.size = unit(12, "mm"), 
+        axis.text = element_text(size = 14),
+        axis.line = element_line(),
+        text = element_text(family = "font14"),
+        title = element_text(size = 30), 
+        plot.background = element_rect(fill=thegreen),
+        plot.margin = margin(6,6,6,6, "mm"),
+        plot.caption = element_text(size = 20, hjust = .95, color = "gray40"), 
+        plot.subtitle = element_text(size=30, color = "gray30"))+
+  labs(title = "Percent of Adults that are Obese", 
+       x = "Proportion of Adults that are Obese",
+       y = "Counties",
+       caption = "IG: do_not_wink | Source: County Health Rankings", 
+       subtitle = "Sorted by County and Showing Margin of Error")
+ggsave("dumbbell.png", p, width = 300, height=600, units= "mm")
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.

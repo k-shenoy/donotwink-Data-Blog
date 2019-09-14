@@ -1,0 +1,60 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+library(maps)
+library(gganimate)
+library(readxl)
+#library(showtext)
+
+thegreen <- rgb(0,250,154, max=255, alpha = 15)
+
+counties <- subset(map_data("county"), region == "georgia")
+stats <- read_excel(FilePath)
+stats$subregion <- tolower(stats$name)
+stats <- left_join(counties, stats)
+
+windowsFonts(font14 = windowsFont("Corbel"))
+
+#font_add_google("DM Sans", "font14")
+
+head(stats)
+
+p <- ggplot(stats, aes(x=long, y=lat, group = group, fill = pop)) +
+  geom_polygon(color = "black") +
+  scale_fill_gradient(low = "white", high = "darkblue", na.value = "white") +
+  theme(panel.background = element_blank(), 
+        panel.grid = element_blank(),
+        panel.spacing = margin(6,6,6,6, "mm"),  
+        legend.background = element_blank(),
+        legend.text = element_text(size=16),
+        legend.title = element_text(size = 22),
+        legend.position = c(.85,.85),
+        legend.key.size = unit(12, "mm"),
+        axis.title = element_blank(), 
+        axis.text = element_blank(),
+        text = element_text(family = "font14"),
+        title = element_text(size = 30), 
+        plot.background = element_rect(fill=thegreen),
+        plot.margin = margin(6,6,6,6, "mm"),
+        plot.caption = element_text(size = 20, hjust = .95, color = "gray40"), 
+        plot.subtitle = element_text(size=30, color = "gray30"))+
+  labs(title = "Population of Georgia", 
+       caption = "IG: do_not_wink | Source: US Census Bureau via georgia-demographics.com", 
+       subtitle = "Sorted by County",
+       fill = "Population")
+ggsave("pop.png", p, width = 240, height=300, units= "mm")
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
