@@ -1,0 +1,53 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+library(tidyverse)
+library(gganimate)
+library(readxl)
+
+thegreen <- rgb(0,250,154, max=255, alpha = 15)
+
+stats <- read_excel(%FilePath%)
+#windowsFonts(font14 = windowsFont("Lucida Sans"))
+
+p <- ggplot(subset(stats, ref == 1), aes(x = cause, y = val)) + 
+  geom_bar(color = "black", aes(fill = cause), stat = "identity") +
+  transition_states(reorder(age, ordered), transition_length = 3, state_length = 2) +
+  ease_aes("cubic-in-out")+
+  enter_grow()+
+  exit_shrink()+
+  coord_flip()+
+  theme(panel.background = element_blank(),
+        panel.grid = element_line(color = "gray75"),
+        panel.spacing = margin(6,6,6,6, "mm"),
+        plot.background = element_rect(fill=thegreen), 
+        plot.caption = element_text(size = 16, hjust = 1, color = "gray40"), 
+        plot.subtitle = element_text(size=21, color = "gray30"),
+        plot.margin = margin(6,6,6,6, "mm"),
+        axis.title.y = element_text(size=18, color = "black"), 
+        axis.title.x = element_text(size=18, color = "black"), 
+        axis.text = element_text(size = 14, color = "gray10"), 
+        legend.position = "none",
+        #text = element_text(family="font14"), 
+        title = element_text(size = 25)) +
+  labs(title = "{closest_state}", 
+       y = "Proportion of Deaths",
+       x = "Causes of Deaths",
+       subtitle = "US 2017 Deaths by Age Group",
+       caption = "IG: do_not_wink; Reddit: donotwink\nSource: Our World in Data\n*Only showing causes that are above 2% for at least one age group")
+animate(p, width = 900, height = 900, nframes = 240, duration = 12)
+anim_save(filename = "deathcauses.mov")
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
