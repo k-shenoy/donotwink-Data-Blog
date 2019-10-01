@@ -1,2 +1,2 @@
 # Rprojects
-Source code for my data visualizations
+Source code for my data visualizations written in R or Python
