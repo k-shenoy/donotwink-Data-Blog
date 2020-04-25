@@ -1,0 +1,58 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(gganimate)
+library(dplyr)
+library(ggrepel)
+
+thegreen <- rgb(0,250,154, max=255, alpha = 15)
+
+el <- read_excel("smogScores.xlsx")
+
+for (i in seq_along(el$valFinal)) {
+  el$label[i] = 1
+  for (j in seq(1,length(el$valFinal))) {
+    if ((sqrt((el$valFinal[i] * 10 - el$valFinal[j] * 10)^2 + (el$streams[i]/10 - el$streams[j]/10)^2) < 5 & sqrt((el$valFinal[i]-el$valFinal[j])^2 + mean(el$streams[i] - el$streams[j])^2) != 0) & el$streams[i] < 1500) {
+      el$label[i] = 0
+      break
+    }
+  }
+}
+
+el$zscores = ((el$valFinal - mean(el$valFinal))/sd(el$valFinal) * (el$streams - mean(el$streams))/sd(el$streams))^2
+
+p <- ggplot(el, aes(x = streams, y = valFinal)) +
+  geom_point(aes(alpha = streams), color = "purple", size = 5) +
+  geom_text_repel(data = subset(el, el$label == 1), fill = rgb(0,0,0,0), point.padding = 0.5, label.size = 0, force = 1, size = 6, aes(label = song)) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid = element_line(color = "gray90"),
+    panel.spacing = margin(6,6,6,6, "mm"),
+    plot.background = element_rect(fill=thegreen),
+    plot.caption = element_text(size = 18, hjust = 1, color = "gray40"),
+    plot.subtitle = element_text(size=24, color = "gray30"),
+    plot.margin = margin(6,6,6,6, "mm"),
+    axis.title.y = element_text(size=21, color = "black"),
+    axis.title.x = element_text(size=21, color = "black"),
+    axis.text.x = element_text(size = 16),
+    axis.text.y = element_text(size = 16),
+    legend.position = "none",
+    #text = element_text(family="font14"),
+    title = element_text(size = 30)
+    ) +
+  labs(
+    title = "Reading Level of Spotify's Top 100 All-Time",
+    subtitle = "Analyzing Readability with the SMOG Index",
+    x = "Streams (in Millions)",
+    y = "Approximate Grade Level",
+    caption = "IG: do_not_wink | Sources: Spotify, LyricWiki, ReadabilityFormulas.com\n*Excludes 4 Non-English Songs"
+  )
+
+ggsave("reading.png", p, width = 300, height=300, units= "mm")
+
+```
